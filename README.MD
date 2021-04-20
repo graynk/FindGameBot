@@ -17,7 +17,7 @@ docker run -d \
     --restart unless-stopped \
     --name gamefinderbot \
     --env-file params.env \
-    ghcr.io/graynk/astrologers_bot:latest
+    ghcr.io/graynk/gamefinder:latest
 ```
 
 ## Usage
