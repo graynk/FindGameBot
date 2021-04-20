@@ -9,9 +9,11 @@ from telegram import InputTextMessageContent
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram import ParseMode
 from telegram import constants
+import re
 
 RAWG_GAME_URL = 'https://rawg.io/games/'
 RAWG_DEVELOPERS_URL = 'https://rawg.io/developers/'
+html_cleanup = re.compile('<.*?>')
 
 
 def format_developer(developer: Developer) -> str:
@@ -38,7 +40,7 @@ def format_text(game: Game) -> InputTextMessageContent:
     text += '{}\n'.format(format_developers(game.developers))
     text += '{}\n\n'.format(format_genres(game.genres))
 
-    description = game.description_raw
+    description = re.sub(html_cleanup, ' ', game.description_raw)
     first_paragraph = description.find('\n')
     if first_paragraph == -1 and description != '':
         description = '{}...'.format(description[:200])

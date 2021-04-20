@@ -14,6 +14,6 @@ class GameBrief:
     id: int
     released: Optional[datetime.date]
     tba: bool
-    background_image: str
+    background_image: Optional[str]
     genres: List[Genre]
     stores: Optional[List[StoreItem]]
