@@ -1,0 +1,10 @@
+.idea/
+.git/
+__pycache__/
+.github/
+README.MD
+LICENSE
+*.json
+Dockerfile
+.gitignore
+params.env
