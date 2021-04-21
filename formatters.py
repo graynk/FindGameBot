@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 from rawg.game import Game
@@ -13,6 +14,8 @@ import re
 
 RAWG_GAME_URL = 'https://rawg.io/games/'
 RAWG_DEVELOPERS_URL = 'https://rawg.io/developers/'
+ELLIPSIS_FORMAT = '{}...'
+ARBITRARY_PRETTY_LENGTH_LIMIT = 550
 html_cleanup = re.compile('<.*?>')
 
 
@@ -21,11 +24,40 @@ def format_developer(developer: Developer) -> str:
 
 
 def format_developers(developers: List[Developer]) -> str:
-    return ', '.join([format_developer(developer) for developer in developers])
+    if not developers or len(developers) == 0:
+        return ''
+    joined = ', '.join([format_developer(developer) for developer in developers])
+    return '{}\n'.format(joined)
+
+
+def format_released(released: datetime.date, tba: bool) -> str:
+    return '<i>{}</i>\n'.format('TBA' if tba or not released else released)
+
+
+def format_alternative_names(alternative_names: List[str]) -> str:
+    if not alternative_names or len(alternative_names) == 0:
+        return ''
+
+    return '({})\n'.format(' / '.join(alternative_names))
 
 
 def format_genres(genres: List[Genre]) -> str:
-    return ', '.join([genre.name for genre in genres])
+    if not genres or len(genres) == 0:
+        return '\n\n'
+    joined = ', '.join([genre.name for genre in genres])
+    return '{}\n\n'.format(joined)
+
+
+def format_description(description: str) -> str:
+    if not description:
+        return ''
+
+    description = re.sub(html_cleanup, ' ', description)
+    first_paragraph = description.find('\n')
+    if first_paragraph == -1 and description != '' and len(description) > ARBITRARY_PRETTY_LENGTH_LIMIT:
+        return ELLIPSIS_FORMAT.format(description[:ARBITRARY_PRETTY_LENGTH_LIMIT])
+    else:
+        return description[:first_paragraph]
 
 
 def format_text(game: Game) -> InputTextMessageContent:
@@ -34,21 +66,14 @@ def format_text(game: Game) -> InputTextMessageContent:
         game.slug,
         game.name
     )
-    if game.alternative_names and len(game.alternative_names) != 0:
-        text += '({})\n'.format(' / '.join(game.alternative_names))
-    text += '<i>{}</i>\n'.format('TBA' if game.tba or not game.released else game.released)
-    text += '{}\n'.format(format_developers(game.developers))
-    text += '{}\n\n'.format(format_genres(game.genres))
+    text += format_alternative_names(game.alternative_names)
+    text += format_released(game.released, game.tba)
+    text += format_developers(game.developers)
+    text += format_genres(game.genres)
+    text += format_description(game.description_raw)
 
-    description = re.sub(html_cleanup, ' ', game.description_raw)
-    first_paragraph = description.find('\n')
-    if first_paragraph == -1 and description != '':
-        description = '{}...'.format(description[:200])
-    else:
-        description = description[:first_paragraph]
-    text += description
-
-    text = text[:constants.MAX_MESSAGE_LENGTH]
+    if len(text) > constants.MAX_MESSAGE_LENGTH:
+        text = ELLIPSIS_FORMAT.format(text[:constants.MAX_MESSAGE_LENGTH-4])
 
     return InputTextMessageContent(message_text=text, parse_mode=ParseMode.HTML)
 
