@@ -32,7 +32,7 @@ key_param = {
 
 def start(update: Update, context: CallbackContext) -> None:
     me = context.bot.get_me().username
-    text = 'This is as an inline bot, try searching with "@{} GTA 5", or something like that'.format(me)
+    text = 'This is an inline bot, try searching with "@{} Portal 2", or something like that'.format(me)
     update.effective_message.reply_text(text)
 
 
