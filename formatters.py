@@ -86,7 +86,7 @@ def format_links(brief_stores: List[StoreBrief], stores: List[Store]) -> InlineK
         store_names[brief_store.id] = brief_store.name
 
     for store in stores:
-        button = InlineKeyboardButton(text=store_names[store.store_id], url=store.url)
+        button = InlineKeyboardButton(text=store_names[store.store_id], url=store.url.replace('http://', 'https://'))
         store_buttons.append([button])
 
     return InlineKeyboardMarkup(store_buttons)
