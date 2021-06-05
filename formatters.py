@@ -86,6 +86,9 @@ def format_links(brief_stores: List[StoreBrief], stores: List[Store]) -> InlineK
         store_names[brief_store.id] = brief_store.name
 
     for store in stores:
+        # apparently some urls may be empty, resulting in exception.
+        if store.url is None or store.url == '':
+            continue
         button = InlineKeyboardButton(text=store_names[store.store_id], url=store.url.replace('http://', 'https://'))
         store_buttons.append([button])
 
