@@ -55,9 +55,13 @@ def format_description(description: str) -> str:
     description = re.sub(html_cleanup, ' ', description)
     first_paragraph = description.find('\n')
     if first_paragraph == -1 and description != '' and len(description) > ARBITRARY_PRETTY_LENGTH_LIMIT:
-        return ELLIPSIS_FORMAT.format(description[:ARBITRARY_PRETTY_LENGTH_LIMIT])
+        description = ELLIPSIS_FORMAT.format(description[:ARBITRARY_PRETTY_LENGTH_LIMIT])
     else:
-        return description[:first_paragraph]
+        description = description[:first_paragraph]
+    description = description.replace('<3', '❤️')\
+        .replace('<', '')\
+        .replace('>', '')
+    return description
 
 
 def format_text(game: Game) -> InputTextMessageContent:
@@ -85,11 +89,11 @@ def format_links(brief_stores: List[StoreBrief], stores: List[Store]) -> InlineK
     for brief_store in brief_stores:
         store_names[brief_store.id] = brief_store.name
 
-    for store in stores:
-        # apparently some urls may be empty, resulting in exception.
-        if store.url is None or store.url == '':
-            continue
+    for index, store in enumerate(stores):
         button = InlineKeyboardButton(text=store_names[store.store_id], url=store.url.replace('http://', 'https://'))
-        store_buttons.append([button])
+        if index % 2 == 0:
+            store_buttons.append([button])
+        else:
+            store_buttons[-1].append(button)
 
     return InlineKeyboardMarkup(store_buttons)

@@ -59,14 +59,17 @@ def inline_search(update: Update, context: CallbackContext) -> None:
         text = formatters.format_text(game)
         buttons = None
         if result.stores:
-            stores = Stores.from_dict(
+            stores_response = Stores.from_dict(
                 requests.get(
                     RAWG_API_STORES_URL.format(result.id),
                     params=key_param
                 ).json()
             )
-            if stores.results:
-                buttons = formatters.format_links([store.store for store in result.stores], stores.results)
+            if stores_response.results:
+                buttons = formatters.format_links(
+                    [store.store for store in result.stores],
+                    [store for store in stores_response.results if store.url is not None and store.url != '']
+                )
 
         article = InlineQueryResultArticle(id=result.id, title=game.name, description=game.released or 'TBA',
                                            input_message_content=text, reply_markup=buttons,
